@@ -1,21 +1,44 @@
 @extends('layout')
 @section('title', 'Login')
+
 @section('content')
-    <div class="container">
-        <form action="{{ route('login.post') }}" method="POST" class="ms-auto me-auto mt-3" style="width: 500px">
+<div class="container d-flex justify-content-center mt-5">
+
+    <div class="card p-4 shadow" style="width: 420px; border-radius: 10px;">
+
+        <h3 class="text-center mb-4">Login</h3>
+
+        <form action="{{ route('login.post') }}" method="POST">
+            @csrf
+
+            {{-- Email --}}
             <div class="mb-3">
-                <label class="form-label">Email address</label>
-                <input type="email" class="form-control" name="email">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input type="email" class="form-control" name="email" required placeholder="Enter your email">
             </div>
+
+            {{-- Password --}}
             <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" name="password">
+                <label class="form-label fw-semibold">Password</label>
+                <input type="password" class="form-control" name="password" required placeholder="Enter your password">
             </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">By continuing, I agree to the terms of use and privacy policy.</label>
+
+            {{-- Forgot Password --}}
+            <div class="mb-3 text-end">
+                <a href="/forgot-password" class="text-success">Forgot password?</a>
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+
+            {{-- Login Button --}}
+            <button type="submit" class="btn btn-outline-success w-100 mb-3">Login</button>
+
+            {{-- Register --}}
+            <div class="text-center">
+                <span>Don't have an account?</span>
+                <a href="/registration" class="text-success">Register</a>
+            </div>
+
         </form>
     </div>
+
+</div>
 @endsection

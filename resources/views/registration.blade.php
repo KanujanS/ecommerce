@@ -1,25 +1,46 @@
 @extends('layout')
 @section('title', 'Registration')
+
 @section('content')
-    <div class="container">
-        <form class="ms-auto me-auto mt-3" style="width: 500px">
+<div class="container d-flex justify-content-center mt-5">
+
+    <div class="card p-4 shadow" style="width: 420px; border-radius: 10px;">
+
+        <h3 class="text-center mb-4">Create Account</h3>
+
+        <form action="{{ route('registration.post') }}" method="POST">
+            @csrf
+
+            {{-- Full Name --}}
             <div class="mb-3">
-                <label class="form-label">Full Name</label>
-                <input type="text" class="form-control" name="name">
+                <label class="form-label fw-semibold">Full Name</label>
+                <input type="text" class="form-control" name="name" required placeholder="Enter your full name">
             </div>
+
+            {{-- Email --}}
             <div class="mb-3">
-                <label class="form-label">Email address</label>
-                <input type="email" class="form-control" name="email">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input type="email" class="form-control" name="email" required placeholder="Enter your email">
             </div>
+
+            {{-- Password --}}
             <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" name="password">
+                <label class="form-label fw-semibold">Password</label>
+                <input type="password" class="form-control" name="password" required placeholder="Create a password">
             </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">By continuing, I agree to the terms of use and privacy policy.</label>
+
+            {{-- Create Account Button --}}
+            <button type="submit" class="btn btn-outline-success w-100 mb-3">Create Account</button>
+
+            {{-- Login Link --}}
+            <div class="text-center">
+                <span>Already have an account?</span>
+                <a href="/login" class="text-success">Login</a>
             </div>
-            <button type="submit" class="btn btn-primary">Create Account</button>
+
         </form>
+
     </div>
+
+</div>
 @endsection
