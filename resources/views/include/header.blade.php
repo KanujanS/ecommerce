@@ -27,11 +27,17 @@
       </ul>
     </div>
 
-    <!-- Login Button on the Right -->
+    <!-- Login / Logout Button on the Right -->
     <div class="d-flex">
-      <a href="/login">
-        <button class="btn btn-outline-success">Login</button>
-      </a>
+        @auth
+            <a href="/logout">
+                <button class="btn btn-outline-danger">Logout</button>
+            </a>
+        @else
+            <a href="/login">
+                <button class="btn btn-outline-success">Login</button>
+            </a>
+        @endauth
     </div>
 
   </div>

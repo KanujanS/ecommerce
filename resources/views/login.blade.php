@@ -7,7 +7,21 @@
     <div class="card p-4 shadow" style="width: 420px; border-radius: 10px;">
 
         <h3 class="text-center mb-4">Login</h3>
-
+        <div class="mt-5">
+            @if ($errors->any())    
+                <div class="col-12">
+                    @foreach ($errors->all() as $error)
+                        <div class="alert alert-danger">{{$error}}</div>
+                    @endforeach
+                </div>
+            @endif
+            @if (session()->has('error'))
+                <div class="alert alert-danger">{{session('error')}}</div>
+            @endif
+            @if (session()->has('success'))
+                <div class="alert alert-success">{{session('success')}}</div>
+            @endif
+        </div>
         <form action="{{ route('login.post') }}" method="POST">
             @csrf
 
