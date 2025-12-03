@@ -36,10 +36,12 @@ class AuthManager extends Controller
     function registrationPost(Request $request){
         $request->validate([
             'name' => 'required',
+            'phone' => 'required|digits:10|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required'
         ]);
         $data['name'] = $request->name;
+        $data['phone'] = $request->phone;
         $data['email'] = $request->email;
         $data['password'] = Hash::make($request->password);
         $user = User::create($data); 

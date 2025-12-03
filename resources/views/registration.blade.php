@@ -31,6 +31,12 @@
                 <input type="text" class="form-control" name="name" required placeholder="Enter your full name">
             </div>
 
+            {{-- Mobile Number --}}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Phone Number</label>
+                <input type="tel" class="form-control" name="phone" required placeholder="Enter your phone number">
+            </div>
+
             {{-- Email --}}
             <div class="mb-3">
                 <label class="form-label fw-semibold">Email Address</label>
