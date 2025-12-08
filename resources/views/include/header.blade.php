@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container">
 
-    <!-- Brand -->
-    <a class="navbar-brand fw-bold" href="#">NSD</a>
+    <!-- Brand - Now navigates to Home Page -->
+    <a class="navbar-brand fw-bold" href="{{ url('/') }}">NSD</a>
 
     <!-- Toggle Button for Mobile -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText">
