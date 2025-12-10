@@ -14,10 +14,13 @@ Route::post('/registration', [AuthManager::class, 'registrationPost'])-> name('r
 Route::get('/logout', [AuthManager::class, 'logout'])-> name('logout');
 
 Route::middleware('guest')->group(function () {
-    // Forgot/Reset Password (backend wired to AuthManager)
     Route::get('/forgot-password', [AuthManager::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [AuthManager::class, 'sendResetLinkEmail'])->name('password.email');
 
     Route::get('/reset-password/{token}', [AuthManager::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [AuthManager::class, 'reset'])->name('password.update');
 });
+Route::get('/verify-otp', [AuthManager::class, 'showVerifyOtpForm'])->name('verify.otp.form');
+Route::post('/verify-otp', [AuthManager::class, 'verifyOtp'])->name('verify.otp');
+Route::post('/forgot-password-otp', [AuthManager::class, 'sendForgotOtp'])->name('forgot.otp');
+Route::post('/verify-forgot-otp', [AuthManager::class, 'verifyForgotOtp'])->name('forgot.verify.otp');

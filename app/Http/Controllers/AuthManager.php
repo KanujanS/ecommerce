@@ -11,50 +11,157 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class AuthManager extends Controller
 {
-    function login() {
+    function login()
+    {
         if (Auth::check()) {
             return redirect(route('home'));
         }
         return view('login');
     }
-    function registration() {
+    function registration()
+    {
         if (Auth::check()) {
             return redirect(route('home'));
         }
         return view('registration');
     }
-    function loginPost(Request $request){
+
+    function loginPost(Request $request)
+    {
         $request->validate([
             'email' => 'required',
             'password' => 'required'
         ]);
+
         $credentials = $request->only('email', 'password');
+
         if (Auth::attempt($credentials)) {
-            return redirect()->intended(route('home'))->with("success", "You have successfully logged in");
+
+            if (!Auth::user()->is_verified) {
+                Auth::logout();
+                return redirect()->route('verify.otp.form', ['email' => $request->email])
+                    ->with("error", "Please verify OTP before logging in.");
+            }
+
+            return redirect()->intended(route('home'))->with("success", "Logged in successfully");
         }
-        return redirect(route('login'))->with("error", "Login details are not valid");
+
+        return redirect(route('login'))->with("error", "Invalid login details");
     }
-    function registrationPost(Request $request){
+
+    function registrationPost(Request $request)
+    {
         $request->validate([
             'name' => 'required',
             'phone' => 'required|digits:10|unique:users',
             'email' => 'required|email|unique:users',
-            'password' => 'required'
+            'password' => 'required',
         ]);
-        $data['name'] = $request->name;
-        $data['phone'] = $request->phone;
-        $data['email'] = $request->email;
-        $data['password'] = Hash::make($request->password);
-        $user = User::create($data); 
-        if(!$user){
-            return redirect(route('registration'))->with("error", "Registration failed, please try again.");
-        }
-        return redirect(route('login'))->with("success", "You have registered successfully. Please login.");
+
+        $user = User::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // ---- Generate OTP ----
+        $otp = $this->generateOtp();
+        $user->otp_code = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        // ---- Send OTP (email / SMS) ----
+        $this->sendOtpEmail($user->email, $otp);
+
+        // Redirect to OTP page
+        return redirect()->route('verify.otp.form', ['email' => $user->email])
+            ->with("success", "OTP sent to your email.");
     }
+
+    private function generateOtp()
+    {
+        return rand(100000, 999999); // 6-digit OTP
+    }
+
+    private function sendOtpEmail($email, $otp)
+    {
+        Mail::raw("Your OTP is: $otp", function ($message) use ($email) {
+            $message->to($email)->subject('Your OTP Code');
+        });
+    }
+
+    public function showVerifyOtpForm(Request $request)
+    {
+        return view('verify-otp', ['email' => $request->email]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || $user->otp_code != $request->otp) {
+            return back()->withErrors(['otp' => 'Invalid OTP']);
+        }
+
+        if ($user->otp_expires_at < now()) {
+            return back()->withErrors(['otp' => 'OTP expired.']);
+        }
+
+        $user->is_verified = true;
+        $user->otp_code = null;
+        $user->otp_expires_at = null;
+        $user->save();
+
+        return redirect()->route('login')->with("success", "Your account is verified. Please login.");
+    }
+
+    public function sendForgotOtp(Request $request)
+{
+    $request->validate(['email' => 'required|email|exists:users,email']);
+
+    $user = User::where('email', $request->email)->first();
+
+    $otp = $this->generateOtp();
+    $user->otp_code = $otp;
+    $user->otp_expires_at = now()->addMinutes(10);
+    $user->save();
+
+    $this->sendOtpEmail($user->email, $otp);
+
+    return back()->with('success', 'OTP sent to your email.');
+}
+
+public function verifyForgotOtp(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'otp' => 'required|digits:6',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user || $user->otp_code != $request->otp) {
+        return back()->withErrors(['otp' => 'Invalid OTP']);
+    }
+
+    if ($user->otp_expires_at < now()) {
+        return back()->withErrors(['otp' => 'OTP expired']);
+    }
+
+    // OTP verified → redirect to reset password form
+    return redirect()->route('password.reset', ['email' => $request->email, 'token' => Str::random(60)]);
+}
     // ========== FORGOT PASSWORD METHODS ==========
 
     /**
@@ -204,7 +311,8 @@ class AuthManager extends Controller
             'user' => Auth::check() ? Auth::user() : null,
         ]);
     }
-    function logout(){
+    function logout()
+    {
         Session::flush();
         Auth::logout();
         return redirect(route('login'))->with("success", "You have logged out successfully.");

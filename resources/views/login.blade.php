@@ -36,12 +36,6 @@
             </div>
 
             {{-- Password --}}
-            <!-- <div class="mb-3">
-                <label class="form-label fw-semibold">Password</label>
-                <input type="password" class="form-control" name="password" required placeholder="Enter your password">
-            </div> -->
-
-            {{-- Password --}}
             <div class="mb-3 position-relative">
                 <label class="form-label fw-semibold">Password</label>
                 <div class="input-group">
